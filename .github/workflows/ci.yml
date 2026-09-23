@@ -32,4 +32,4 @@ jobs:
         run: cargo test --workspace --lib --bins
 
       - name: E2E tests
-        run: cargo test --test e2e_cli
+        run: cargo test --tests

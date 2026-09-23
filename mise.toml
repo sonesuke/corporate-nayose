@@ -32,13 +32,21 @@ run = "cargo fmt --all -- --check"
 description = "Lint with cargo clippy"
 run = "cargo clippy --all-targets -- -D warnings"
 
+[tasks.tables]
+description = "Build parquet tables from the raw registry CSVs in data/"
+run = "cargo run --release -- build-tables"
+
+[tasks.verify-tables]
+description = "Verify built parquet tables against the raw data"
+run = "cargo test --release --test verify_real_data -- --ignored --nocapture"
+
 [tasks.test]
 description = "Run unit tests"
 run = "RUSTFLAGS=\"-D warnings\" cargo test --workspace --lib --bins"
 
 [tasks.test-e2e]
 description = "Run e2e tests"
-run = "cargo test --test e2e_cli"
+run = "cargo test --tests"
 
 [tasks.pre-commit]
 description = "Run fmt, clippy, and unit tests"

@@ -6,5 +6,30 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    # Job-level so every cargo invocation shares one build fingerprint. Setting
+    # RUSTFLAGS on individual steps would change it per step and force rebuilds.
+    env:
+      RUSTFLAGS: -D warnings
     steps:
-      - run: echo "CI is running and always passing!"
+      - uses: actions/checkout@v5
+
+      # Same toolchain as the dev container (flake.nix): stable latest with
+      # rustfmt and clippy.
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      # Mirror the mise tasks (mise.toml): fmt -> clippy -> test -> test-e2e.
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Lint
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: Unit tests
+        run: cargo test --workspace --lib --bins
+
+      - name: E2E tests
+        run: cargo test --test e2e_cli
